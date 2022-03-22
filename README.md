@@ -1,1 +1,3 @@
-Run npm i in the project's root directory 
+Stock-CLI
+
+View stock's data in your terminal
