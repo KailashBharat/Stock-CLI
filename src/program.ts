@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { incomeStatement } from "./api/stocks";
+import { IS_Handler, priceHandler } from "./handlers/fundamentalHandlers";
 
 const program = new Command();
 
@@ -14,11 +14,7 @@ program
   .option("-q, --quarterly <year>-<month>", "Provides the quarterly reports")
   .option("-y, --yearly <year>", "Provides the yearly reports")
   .action((stock: string, options) => {
-    const option: string[] = Object.keys(options);
-
-    console.log(`You chose ${stock.toUpperCase()}`);
-    console.log(option[0], options[option[0]]);
-    // incomeStatement(stock.toUpperCase());
+    IS_Handler(stock, options);
   });
 
 program
@@ -38,15 +34,7 @@ program
     "Display the stock prices for the desired number of years"
   )
   .action((stock: string, options) => {
-    const option: string[] = Object.keys(options);
-
-    if (option.length > 1) return console.log("Please specify only one option");
-
-    console.log(
-      `You chose to view the stock prices of ${stock.toUpperCase()}. You have chose to view the stock on a ${
-        option[0]
-      } chart.`
-    );
+    priceHandler(stock, options);
   });
 
 export default program;
