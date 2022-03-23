@@ -1,0 +1,3 @@
+Idea: Puppeteer with the Finviz screener
+The idea is useful for screening for certain types of stock and returning their fundamental data
+The stock's information could then be used to make decisions whether to buy or sell a stock.

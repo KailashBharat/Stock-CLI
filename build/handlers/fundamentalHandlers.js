@@ -39,38 +39,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.incomeStatement = void 0;
-require("dotenv/config");
-var axios_1 = __importDefault(require("axios"));
-function incomeStatement(stockSymbol, option) {
+exports.priceHandler = exports.IS_Handler = void 0;
+var option_1 = __importDefault(require("../classes/option"));
+function IS_Handler(stock, options) {
     return __awaiter(this, void 0, void 0, function () {
-        var data, result, error_1;
+        var option, result;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    if (!stockSymbol)
-                        return [2 /*return*/, console.log("Please enter a stock symbol")];
-                    return [4 /*yield*/, axios_1.default.get("https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=".concat(stockSymbol, "&apikey=").concat(process.env.ALPHA_API_KEY))];
-                case 1:
-                    result = _a.sent();
-                    data = result.data;
-                    if (!data)
-                        return [2 /*return*/, console.log("Something went wrong")];
-                    if (option === "quarter") {
-                        return [2 /*return*/, data.quarterlyReports];
-                    }
-                    else if (option === "year") {
-                        return [2 /*return*/, data.annualReports];
-                    }
-                    return [2 /*return*/, data];
-                case 2:
-                    error_1 = _a.sent();
-                    console.log(error_1);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
-            }
+            option = new option_1.default(options);
+            console.log("You chose ".concat(stock.toUpperCase()));
+            console.log(option.isQuarter());
+            return [2 /*return*/];
         });
     });
 }
-exports.incomeStatement = incomeStatement;
+exports.IS_Handler = IS_Handler;
+function priceHandler(stock, options) {
+    var option = Object.keys(options);
+    var optionValue = Object.values(options);
+    if (option.length > 1)
+        return console.log("Please specify only one option");
+    console.log("You chose to view the stock prices of ".concat(stock.toUpperCase(), ". \n    You have chose to view the stock on a ").concat(option[0], " chart.\n    You want to see the stock's price of the last ").concat(optionValue[0], " days"));
+}
+exports.priceHandler = priceHandler;
