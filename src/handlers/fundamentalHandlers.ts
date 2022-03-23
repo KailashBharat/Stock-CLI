@@ -2,14 +2,21 @@ import { incomeStatement } from "../api/stocks";
 import Option from "../classes/option";
 
 export async function IS_Handler(stock: string, options: Object) {
-    const option = new Option(options);
-    let result;
+  const option = new Option(options);
+  let result = [];
+  let output = [];
 
   console.log(`You chose ${stock.toUpperCase()}`);
-  console.log(option.isQuarter());
 
-//   result = await incomeStatement(stock, option[0]);
-//   console.log(result);
+  if (option.isQuarter()) result = await incomeStatement(stock, "quarter");
+  if (option.isYear()) result = await incomeStatement(stock, "year");
+
+  option.setData(result);
+  output = option.getUserData();
+
+  output.length
+    ? console.log(output)
+    : console.log("No data found, please try something else");
 }
 
 export function priceHandler(stock: string, options: Object) {

@@ -40,15 +40,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.priceHandler = exports.IS_Handler = void 0;
+var stocks_1 = require("../api/stocks");
 var option_1 = __importDefault(require("../classes/option"));
 function IS_Handler(stock, options) {
     return __awaiter(this, void 0, void 0, function () {
-        var option, result;
+        var option, result, output;
         return __generator(this, function (_a) {
-            option = new option_1.default(options);
-            console.log("You chose ".concat(stock.toUpperCase()));
-            console.log(option.isQuarter());
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0:
+                    option = new option_1.default(options);
+                    result = [];
+                    output = [];
+                    console.log("You chose ".concat(stock.toUpperCase()));
+                    if (!option.isQuarter()) return [3 /*break*/, 2];
+                    return [4 /*yield*/, (0, stocks_1.incomeStatement)(stock, "quarter")];
+                case 1:
+                    result = _a.sent();
+                    _a.label = 2;
+                case 2:
+                    if (!option.isYear()) return [3 /*break*/, 4];
+                    return [4 /*yield*/, (0, stocks_1.incomeStatement)(stock, "year")];
+                case 3:
+                    result = _a.sent();
+                    _a.label = 4;
+                case 4:
+                    option.setData(result);
+                    output = option.getUserData();
+                    output.length
+                        ? console.log(output)
+                        : console.log("No data found, please try something else");
+                    return [2 /*return*/];
+            }
         });
     });
 }

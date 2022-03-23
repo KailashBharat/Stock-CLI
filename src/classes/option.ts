@@ -8,7 +8,7 @@ interface Report {
 export default class Option {
   public option: string;
   public value: string;
-  public data: Report[] = []
+  public reports: Report[] = [];
 
   constructor(option: Object) {
     this.option = Object.keys(option)[0];
@@ -29,5 +29,23 @@ export default class Option {
       return false;
     }
     return true;
+  }
+
+  public setData(reports: Report[]): void {
+    this.reports = reports;
+  }
+
+  public getUserData(): Report[] {
+    let result: Report[] = [];
+    if (this.option.search("last") >= 0) {
+      result = this.reports.splice(0, parseInt(this.value));
+    } else if (this.option.search("find") >= 0) {
+      result = this.reports.filter(
+        (report) => report.fiscalDateEnding.search(this.value) >= 0
+      );
+      return result;
+    }
+
+    return result;
   }
 }
