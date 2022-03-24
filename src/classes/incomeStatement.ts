@@ -5,7 +5,7 @@ interface Report {
   netIncome: string;
 }
 
-export default class Option {
+export default class IncomeStatement {
   public option: string;
   public value: string;
   public reports: Report[] = [];

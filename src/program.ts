@@ -30,12 +30,12 @@ program
     "Display the stock prices for the desired number of days"
   )
   .option(
-    "-m, --monthly <months> ",
-    "Display the stock prices for the desired number of months"
+    "-w, --weekly <weeks> ",
+    "Display the stock prices for the desired number of weeks"
   )
   .option(
-    "-y, --yearly <years> ",
-    "Display the stock prices for the desired number of years"
+    "-m, --monthly <months> ",
+    "Display the stock prices for the desired number of months"
   )
   .action((stock: string, options) => {
     priceHandler(stock, options);

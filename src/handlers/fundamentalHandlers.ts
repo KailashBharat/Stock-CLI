@@ -1,8 +1,8 @@
 import { incomeStatement } from "../api/stocks";
-import Option from "../classes/option";
+import IncomeStatement from "../classes/incomeStatement";
 
 export async function IS_Handler(stock: string, options: Object) {
-  const option = new Option(options);
+  const option = new IncomeStatement(options);
   let result = [];
   let output = [];
 
