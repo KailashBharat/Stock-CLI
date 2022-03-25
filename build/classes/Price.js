@@ -23,21 +23,18 @@ var StockPrice = /** @class */ (function (_super) {
     __extends(StockPrice, _super);
     function StockPrice(option) {
         var _this = _super.call(this, option) || this;
-        _this.reports = [];
+        _this.prices = {};
         return _this;
     }
-    StockPrice.prototype.setData = function (reports) {
-        this.reports = reports;
+    StockPrice.prototype.setData = function (prices) {
+        this.prices = prices;
     };
     StockPrice.prototype.getUserData = function () {
-        var _this = this;
-        var result = [];
-        if (this.option.search("last") >= 0) {
-            result = this.reports.splice(0, parseInt(this.value));
-        }
-        else if (this.option.search("find") >= 0) {
-            result = this.reports.filter(function (report) { return report.fiscalDateEnding.search(_this.value) >= 0; });
-            return result;
+        var result = {};
+        var keys = Object.keys(this.prices);
+        for (var i = 0; i < parseInt(this.value); i++) {
+            var key = keys[i];
+            result[key] = this.prices[key];
         }
         return result;
     };

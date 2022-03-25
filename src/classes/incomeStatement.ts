@@ -31,4 +31,24 @@ export default class IncomeStatement extends Option {
   public setData(reports: Report[]): void {
     this.reports = reports;
   }
+
+  // FIXME
+  public getUserOption():string{
+    let period: string;
+    let option:string;
+
+    if(this.searchOption("quarter")){
+      period = "quarter"
+    }else if(this.searchOption("year")){
+      period = "year"
+    }
+
+    if(this.searchOption("find")){
+      option = "find"
+    }else if(this.searchOption("last")){
+      option = "last"
+    }
+
+    return "";
+  }
 }

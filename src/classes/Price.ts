@@ -1,35 +1,35 @@
-import Option from "./Option"
+import Option from "./Option";
 
-interface Report {
-    fiscalDateEnding: string;
-    reportedCurrency: string;
-    grossProfit: string;
-    netIncome: string;
-  }
-  
+interface PriceInformation {
+  "1. open": string;
+  "2. high": string;
+  "3. low": string;
+  "4. close": string;
+  "5. volume": string;
+}
+
+interface StockPrices {
+  [key: string]: PriceInformation;
+}
+
 export default class StockPrice extends Option {
-    public reports: Report[] = [];
-  
-    constructor(option: Object) {
-      super(option);
-    }
-  
-    public setData(reports: Report[]): void {
-      this.reports = reports;
-    }
-  
-    public getUserData(): Report[] {
-      let result: Report[] = [];
-      if (this.option.search("last") >= 0) {
-        result = this.reports.splice(0, parseInt(this.value));
-      } else if (this.option.search("find") >= 0) {
-        result = this.reports.filter(
-          (report) => report.fiscalDateEnding.search(this.value) >= 0
-        );
-        return result;
-      }
-  
-      return result;
-    }
+  public prices: StockPrices = {};
+
+  constructor(option: Object) {
+    super(option);
   }
-  
+
+  public setData(prices: StockPrices): void {
+    this.prices = prices;
+  }
+
+  public getUserData(): StockPrices {
+    let result: StockPrices = {};
+    const keys = Object.keys(this.prices);
+    for (let i = 0; i < parseInt(this.value); i++) {
+      const key = keys[i];
+      result[key] = this.prices[key];
+    }
+    return result;
+  }
+}

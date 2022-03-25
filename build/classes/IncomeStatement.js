@@ -42,6 +42,24 @@ var IncomeStatement = /** @class */ (function (_super) {
     IncomeStatement.prototype.setData = function (reports) {
         this.reports = reports;
     };
+    // FIXME
+    IncomeStatement.prototype.getUserOption = function () {
+        var period;
+        var option;
+        if (this.searchOption("quarter")) {
+            period = "quarter";
+        }
+        else if (this.searchOption("year")) {
+            period = "year";
+        }
+        if (this.searchOption("find")) {
+            option = "find";
+        }
+        else if (this.searchOption("last")) {
+            option = "last";
+        }
+        return "";
+    };
     return IncomeStatement;
 }(Option_1.default));
 exports.default = IncomeStatement;

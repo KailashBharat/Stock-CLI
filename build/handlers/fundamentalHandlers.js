@@ -42,17 +42,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.priceHandler = exports.IS_Handler = void 0;
 var stocks_1 = require("../api/stocks");
 var IncomeStatement_1 = __importDefault(require("../classes/IncomeStatement"));
+var price_1 = __importDefault(require("../classes/price"));
 function IS_Handler(stock, options) {
     return __awaiter(this, void 0, void 0, function () {
-        var option, result, output, quarterlyReports, annualReports, error_1;
+        var option, output, quarterlyReports, annualReports, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     if (Object.keys(options).length > 1)
                         return [2 /*return*/, console.log("Please specify only one option")];
                     option = new IncomeStatement_1.default(options);
-                    result = [];
                     output = [];
+                    //FIXME: Make a method that logs the user's option
                     console.log("You chose ".concat(stock.toUpperCase()));
                     _a.label = 1;
                 case 1:
@@ -61,17 +62,16 @@ function IS_Handler(stock, options) {
                     return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "INCOME_STATEMENT")];
                 case 2:
                     quarterlyReports = (_a.sent()).quarterlyReports;
-                    result = quarterlyReports;
-                    _a.label = 3;
+                    option.setData(quarterlyReports);
+                    return [3 /*break*/, 5];
                 case 3:
                     if (!option.searchOption("year")) return [3 /*break*/, 5];
                     return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "INCOME_STATEMENT")];
                 case 4:
                     annualReports = (_a.sent()).annualReports;
-                    result = annualReports;
+                    option.setData(annualReports);
                     _a.label = 5;
                 case 5:
-                    option.setData(result);
                     output = option.getUserData();
                     output.length
                         ? console.log(output)
@@ -88,10 +88,46 @@ function IS_Handler(stock, options) {
 }
 exports.IS_Handler = IS_Handler;
 function priceHandler(stock, options) {
-    var option = Object.keys(options);
-    var optionValue = Object.values(options);
-    if (option.length > 1)
-        return console.log("Please specify only one option");
-    console.log("You chose to view the stock prices of ".concat(stock.toUpperCase(), ". \n    You have chose to view the stock on a ").concat(option[0], " chart.\n    You want to see the stock's price of the last ").concat(optionValue[0], " days"));
+    return __awaiter(this, void 0, void 0, function () {
+        var option, result, period, error_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (Object.keys(options).length > 1)
+                        return [2 /*return*/, console.log("Please specify only one option")];
+                    option = new price_1.default(options);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 8, , 9]);
+                    if (!option.searchOption("daily")) return [3 /*break*/, 3];
+                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "TIME_SERIES_DAILY")];
+                case 2:
+                    result = _a.sent();
+                    return [3 /*break*/, 7];
+                case 3:
+                    if (!option.searchOption("weekly")) return [3 /*break*/, 5];
+                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "TIME_SERIES_WEEKLY")];
+                case 4:
+                    result = _a.sent();
+                    return [3 /*break*/, 7];
+                case 5:
+                    if (!option.searchOption("monthly")) return [3 /*break*/, 7];
+                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "TIME_SERIES_MONTHLY")];
+                case 6:
+                    result = _a.sent();
+                    _a.label = 7;
+                case 7:
+                    period = Object.keys(result)[1];
+                    option.setData(result[period]);
+                    console.log(option.getUserData());
+                    return [3 /*break*/, 9];
+                case 8:
+                    error_2 = _a.sent();
+                    console.log(error_2);
+                    return [3 /*break*/, 9];
+                case 9: return [2 /*return*/];
+            }
+        });
+    });
 }
 exports.priceHandler = priceHandler;
