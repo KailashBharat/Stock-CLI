@@ -41,35 +41,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.priceHandler = exports.IS_Handler = void 0;
 var stocks_1 = require("../api/stocks");
-var option_1 = __importDefault(require("../classes/option"));
+var IncomeStatement_1 = __importDefault(require("../classes/IncomeStatement"));
 function IS_Handler(stock, options) {
     return __awaiter(this, void 0, void 0, function () {
-        var option, result, output;
+        var option, result, output, quarterlyReports, annualReports, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    option = new option_1.default(options);
+                    if (Object.keys(options).length > 1)
+                        return [2 /*return*/, console.log("Please specify only one option")];
+                    option = new IncomeStatement_1.default(options);
                     result = [];
                     output = [];
                     console.log("You chose ".concat(stock.toUpperCase()));
-                    if (!option.isQuarter()) return [3 /*break*/, 2];
-                    return [4 /*yield*/, (0, stocks_1.incomeStatement)(stock, "quarter")];
+                    _a.label = 1;
                 case 1:
-                    result = _a.sent();
-                    _a.label = 2;
+                    _a.trys.push([1, 6, , 7]);
+                    if (!option.searchOption("quarter")) return [3 /*break*/, 3];
+                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "INCOME_STATEMENT")];
                 case 2:
-                    if (!option.isYear()) return [3 /*break*/, 4];
-                    return [4 /*yield*/, (0, stocks_1.incomeStatement)(stock, "year")];
+                    quarterlyReports = (_a.sent()).quarterlyReports;
+                    result = quarterlyReports;
+                    _a.label = 3;
                 case 3:
-                    result = _a.sent();
-                    _a.label = 4;
+                    if (!option.searchOption("year")) return [3 /*break*/, 5];
+                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "INCOME_STATEMENT")];
                 case 4:
+                    annualReports = (_a.sent()).annualReports;
+                    result = annualReports;
+                    _a.label = 5;
+                case 5:
                     option.setData(result);
                     output = option.getUserData();
                     output.length
                         ? console.log(output)
                         : console.log("No data found, please try something else");
-                    return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 6:
+                    error_1 = _a.sent();
+                    console.log(error_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });

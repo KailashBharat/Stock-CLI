@@ -1,32 +1,21 @@
 import "dotenv/config";
 import axios from "axios";
 
-interface IS {
-  symbol: string;
-  annualReports: any;
-  quarterlyReports: any;
-}
 
-export async function incomeStatement(
+export async function fetchStockData(
   stockSymbol: string,
-  option: string
+  functionType: string
 ){
-  let data: IS;
+  let data;
   try {
     if (!stockSymbol) return console.log("Please enter a stock symbol");
 
     const result = await axios.get(
-      `https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=${stockSymbol}&apikey=${process.env.ALPHA_API_KEY}`
+      `https://www.alphavantage.co/query?function=${functionType}&symbol=${stockSymbol}&apikey=${process.env.ALPHA_API_KEY}`
     );
     data = result.data;
 
     if (!data) return console.log("Something went wrong");
-
-    if (option === "quarter") {
-      return data.quarterlyReports;
-    }else if(option === "year"){
-      return data.annualReports;
-    }
     return data
 
   } catch (error) {

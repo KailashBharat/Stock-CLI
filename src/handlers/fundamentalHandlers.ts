@@ -1,22 +1,39 @@
-import { incomeStatement } from "../api/stocks";
-import IncomeStatement from "../classes/incomeStatement";
+import { fetchStockData } from "../api/stocks";
+import IncomeStatement from "../classes/IncomeStatement";
 
 export async function IS_Handler(stock: string, options: Object) {
+  if (Object.keys(options).length > 1)
+    return console.log("Please specify only one option");
+
   const option = new IncomeStatement(options);
   let result = [];
   let output = [];
 
+  //FIXME: Make a method that logs the user's option
   console.log(`You chose ${stock.toUpperCase()}`);
 
-  if (option.isQuarter()) result = await incomeStatement(stock, "quarter");
-  if (option.isYear()) result = await incomeStatement(stock, "year");
+  try {
 
-  option.setData(result);
-  output = option.getUserData();
+    if (option.searchOption("quarter")) {
+      const { quarterlyReports } = await fetchStockData(
+        stock,
+        "INCOME_STATEMENT"
+      );
+      result = quarterlyReports;
+    } else if (option.searchOption("year")) {
+      const { annualReports } = await fetchStockData(stock, "INCOME_STATEMENT");
+      result = annualReports;
+    }
 
-  output.length
-    ? console.log(output)
-    : console.log("No data found, please try something else");
+    option.setData(result);
+    output = option.getUserData();
+
+    output.length
+      ? console.log(output)
+      : console.log("No data found, please try something else");
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 export function priceHandler(stock: string, options: Object) {

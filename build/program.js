@@ -24,8 +24,8 @@ program
     .description("View the stock price")
     .argument("<stock>", "Chosen stock to view prices")
     .option("-d, --daily <days> ", "Display the stock prices for the desired number of days")
+    .option("-w, --weekly <weeks> ", "Display the stock prices for the desired number of weeks")
     .option("-m, --monthly <months> ", "Display the stock prices for the desired number of months")
-    .option("-y, --yearly <years> ", "Display the stock prices for the desired number of years")
     .action(function (stock, options) {
     (0, fundamentalHandlers_1.priceHandler)(stock, options);
 });

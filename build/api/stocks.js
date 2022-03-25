@@ -39,10 +39,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.incomeStatement = void 0;
+exports.fetchStockData = void 0;
 require("dotenv/config");
 var axios_1 = __importDefault(require("axios"));
-function incomeStatement(stockSymbol, option) {
+function fetchStockData(stockSymbol, functionType) {
     return __awaiter(this, void 0, void 0, function () {
         var data, result, error_1;
         return __generator(this, function (_a) {
@@ -51,18 +51,12 @@ function incomeStatement(stockSymbol, option) {
                     _a.trys.push([0, 2, , 3]);
                     if (!stockSymbol)
                         return [2 /*return*/, console.log("Please enter a stock symbol")];
-                    return [4 /*yield*/, axios_1.default.get("https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=".concat(stockSymbol, "&apikey=").concat(process.env.ALPHA_API_KEY))];
+                    return [4 /*yield*/, axios_1.default.get("https://www.alphavantage.co/query?function=".concat(functionType, "&symbol=").concat(stockSymbol, "&apikey=").concat(process.env.ALPHA_API_KEY))];
                 case 1:
                     result = _a.sent();
                     data = result.data;
                     if (!data)
                         return [2 /*return*/, console.log("Something went wrong")];
-                    if (option === "quarter") {
-                        return [2 /*return*/, data.quarterlyReports];
-                    }
-                    else if (option === "year") {
-                        return [2 /*return*/, data.annualReports];
-                    }
                     return [2 /*return*/, data];
                 case 2:
                     error_1 = _a.sent();
@@ -73,4 +67,4 @@ function incomeStatement(stockSymbol, option) {
         });
     });
 }
-exports.incomeStatement = incomeStatement;
+exports.fetchStockData = fetchStockData;
