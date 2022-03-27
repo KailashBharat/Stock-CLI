@@ -1,3 +1,8 @@
 Idea: Puppeteer with the Finviz screener
 The idea is useful for screening for certain types of stock and returning their fundamental data
 The stock's information could then be used to make decisions whether to buy or sell a stock.
+
+Todo:
+Find a way to let a user create a certain template for selecting stocks
+Use the keys.ts file to give the user the filter names and their options
+Then add them to a file

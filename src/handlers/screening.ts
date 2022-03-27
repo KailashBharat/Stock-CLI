@@ -1,12 +1,14 @@
 import puppeteer from "puppeteer";
+import util from "util";
+import fse from "fs-extra";
 
 interface filterOption {
   name: string;
   id: string;
-  options: string[];
+  options: Object[];
 }
 
-export default async function screenStocks() {
+export default async function getFinvizFilterOptions() {
   const browser = await puppeteer.launch({ headless: false });
   const page = (await browser.pages())[0];
 
@@ -18,7 +20,7 @@ export default async function screenStocks() {
   await page.waitForSelector("button.Button__StyledButton-a1qza5-0.lcqSKB");
   await page.click("button.Button__StyledButton-a1qza5-0.lcqSKB");
 
-  const options = await page.evaluate(() => {
+  const options: filterOption[] = await page.evaluate(() => {
     const tableChildren: HTMLCollection | string =
       document.querySelector("#filter-table-filters > tbody")?.children ||
       "No children";
@@ -29,9 +31,11 @@ export default async function screenStocks() {
       const rowChildren: HTMLCollection = row.children;
       const rowData: Element[] = Object.values(rowChildren) || [];
 
-      const filter: filterOption = { name: "", id: " ", options: [] };
+      let name: string;
+      let id: string;
+      let nameOptions: Object[] = [];
 
-      rowData.forEach((data, index) => {
+      rowData.forEach((data) => {
         const dataChildren: Element[] = Object.values(data.children) || [];
         const filterName: Element = dataChildren.filter(
           (element: Element) => element.tagName.toLowerCase() == "span"
@@ -39,30 +43,44 @@ export default async function screenStocks() {
         const filterOptions: Element = dataChildren.filter(
           (element: Element) => element.tagName.toLowerCase() == "select"
         )[0];
-        console.log({ index, name:filterName?.innerHTML, filterOptions });
 
         if (filterName?.innerHTML) {
-          filter.name = filterName?.innerHTML;
+          name = filterName.innerHTML;
+          console.log("hasFilterName", filterName.innerHTML);
         }
 
         if (filterOptions?.children) {
           Object.values(filterOptions?.children).forEach((option: Element) => {
-            filter.options.push(option.innerHTML);
+            nameOptions.push({
+              OptionName: option.innerHTML,
+              value: (<HTMLInputElement>option).value,
+            });
           });
-          filter.id = filterOptions.id;
-          screeningOptions.push(filter);
-          filter.name = " ";
-          filter.id = "";
-          filter.options = [];
+
+          id = filterOptions.id;
+          screeningOptions.push({ name: name, id: id, options: nameOptions });
+
+          name = " ";
+          id = "";
+          nameOptions = [];
         }
       });
     });
 
-    console.log(screeningOptions);
+    return screeningOptions;
   });
+
+  await fse.unlink("src/keys.ts");
+  const writer = fse.createWriteStream("src/keys.ts");
+  writer.write(`const keys = ${JSON.stringify(options, null, 2)};\n`);
+  writer.write(`export default keys;`);
+
+  await page.select("#fs_exch", "nasd");
+
+  // console.log(util.inspect(options, false, null, true));
 
   await page.waitForTimeout(5_000_000);
   await browser.close();
 }
 
-screenStocks();
+getFinvizFilterOptions();
