@@ -89,43 +89,38 @@ function IS_Handler(stock, options) {
 exports.IS_Handler = IS_Handler;
 function priceHandler(stock, options) {
     return __awaiter(this, void 0, void 0, function () {
-        var option, result, period, error_2;
+        var option, result, period, userOption, error_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (Object.keys(options).length > 1)
+                    if (Object.keys(options).length > 1 || Object.keys(options).length == 0)
                         return [2 /*return*/, console.log("Please specify only one option")];
                     option = new price_1.default(options);
+                    userOption = "TIME_SERIES_DAILY";
                     _a.label = 1;
                 case 1:
-                    _a.trys.push([1, 8, , 9]);
-                    if (!option.searchOption("daily")) return [3 /*break*/, 3];
-                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "TIME_SERIES_DAILY")];
+                    _a.trys.push([1, 3, , 4]);
+                    if (option.searchOption("daily")) {
+                        userOption = "TIME_SERIES_DAILY";
+                    }
+                    else if (option.searchOption("weekly")) {
+                        userOption = "TIME_SERIES_WEEKLY";
+                    }
+                    else if (option.searchOption("monthly")) {
+                        userOption = "TIME_SERIES_MONTHLY";
+                    }
+                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, userOption)];
                 case 2:
                     result = _a.sent();
-                    return [3 /*break*/, 7];
-                case 3:
-                    if (!option.searchOption("weekly")) return [3 /*break*/, 5];
-                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "TIME_SERIES_WEEKLY")];
-                case 4:
-                    result = _a.sent();
-                    return [3 /*break*/, 7];
-                case 5:
-                    if (!option.searchOption("monthly")) return [3 /*break*/, 7];
-                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "TIME_SERIES_MONTHLY")];
-                case 6:
-                    result = _a.sent();
-                    _a.label = 7;
-                case 7:
                     period = Object.keys(result)[1];
                     option.setData(result[period]);
                     console.log(option.getUserData());
-                    return [3 /*break*/, 9];
-                case 8:
+                    return [3 /*break*/, 4];
+                case 3:
                     error_2 = _a.sent();
                     console.log(error_2);
-                    return [3 /*break*/, 9];
-                case 9: return [2 /*return*/];
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
         });
     });

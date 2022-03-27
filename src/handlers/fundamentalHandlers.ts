@@ -35,22 +35,26 @@ export async function IS_Handler(stock: string, options: Object) {
 }
 
 export async function priceHandler(stock: string, options: Object) {
-  if (Object.keys(options).length > 1)
+  if (Object.keys(options).length > 1 || Object.keys(options).length == 0)
     return console.log("Please specify only one option");
 
   const option = new StockPrice(options);
   let result: any;
   let period: string;
+  let userOption: string = "TIME_SERIES_DAILY";
 
   try {
     if (option.searchOption("daily")) {
-      result = await fetchStockData(stock, "TIME_SERIES_DAILY");
+      userOption = "TIME_SERIES_DAILY";
     } else if (option.searchOption("weekly")) {
-      result = await fetchStockData(stock, "TIME_SERIES_WEEKLY");
+      userOption = "TIME_SERIES_WEEKLY";
     } else if (option.searchOption("monthly")) {
-      result = await fetchStockData(stock, "TIME_SERIES_MONTHLY");
+      userOption = "TIME_SERIES_MONTHLY";
     }
+
+    result = await fetchStockData(stock, userOption);
     period = Object.keys(result)[1];
+
     option.setData(result[period]);
     console.log(option.getUserData());
   } catch (error) {

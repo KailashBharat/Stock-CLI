@@ -18,7 +18,7 @@ program
     .action(function (stock, options) {
     (0, fundamentalHandlers_1.IS_Handler)(stock, options);
 });
-//STOCK PRICE 
+//STOCK PRICE
 program
     .command("price")
     .description("View the stock price")
@@ -28,5 +28,15 @@ program
     .option("-m, --monthly <months> ", "Display the stock prices for the desired number of months")
     .action(function (stock, options) {
     (0, fundamentalHandlers_1.priceHandler)(stock, options);
+});
+program
+    .command("screen")
+    .description("Screen for stocks")
+    .option("-l, --long-term, Screening for longterm stocks")
+    .option("-s, --short-term, Screening for shortterm stocks")
+    .action(function (options) {
+    if (!Object.keys(options).length)
+        return console.log("Please specify an option.");
+    console.log("You chose to screen for ".concat(Object.keys(options)[0], " stocks"));
 });
 exports.default = program;
