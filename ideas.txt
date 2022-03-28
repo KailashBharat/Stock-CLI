@@ -5,4 +5,5 @@ The stock's information could then be used to make decisions whether to buy or s
 Todo:
 Find a way to let a user create a certain template for selecting stocks
 Use the keys.ts file to give the user the filter names and their options
+Also let the user specify what kind of options they are specifying, i.e screening for; longterm, shortterm etc...
 Then add them to a file
