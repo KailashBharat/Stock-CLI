@@ -1,17 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Option = /** @class */ (function () {
-    function Option(option) {
+class Option {
+    option;
+    value;
+    constructor(option) {
         this.option = Object.keys(option)[0];
         this.value = Object.values(option)[0];
     }
-    Option.prototype.searchOption = function (searchString) {
-        var match = this.option.toLowerCase().search(searchString);
+    searchOption(searchString) {
+        if (!this.option)
+            return false;
+        const match = this?.option.toLowerCase().search(searchString);
         if (match === -1) {
             return false;
         }
         return true;
-    };
-    return Option;
-}());
+    }
+}
 exports.default = Option;

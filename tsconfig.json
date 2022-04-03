@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es5",                          
-    "module": "commonjs",                    
-    "lib": ["es6", "DOM"],                     
+    "target": "ESNext",                          
+    "module": "CommonJS",                    
+    "lib": ["ESNext", "DOM"],                     
     "allowJs": true,
     "outDir": "build",                          
     "rootDir": "src",

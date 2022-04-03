@@ -1,24 +1,44 @@
 import "dotenv/config";
 import axios from "axios";
 
-
 export async function fetchStockData(
-  stockSymbol: string,
-  functionType: string
-){
-  let data;
-  try {
-    if (!stockSymbol) return console.log("Please enter a stock symbol");
+  functionType: string,
+  symbol?: string,
+  optionalInfo: { [key: string]: string } = {}
+) {
 
-    const result = await axios.get(
-      `https://www.alphavantage.co/query?function=${functionType}&symbol=${stockSymbol}&apikey=${process.env.ALPHA_API_KEY}`
-    );
+  let data;
+  let URL: string = `https://www.alphavantage.co/query?function=${functionType}&apikey=${process.env.ALPHA_API_KEY}`;
+  const FUNCTIONTYPES: string[] = [
+    "INCOME_STATEMENT",
+    "BALANCE_SHEET",
+    "CASH_FLOW",
+    "EARNINGS",
+    "OVERVIEW",
+  ];
+
+  if (FUNCTIONTYPES.includes(functionType) && !symbol)
+    return console.log("Please enter a stock symbol");
+
+  if (symbol) URL += `&symbol=${symbol}`;
+
+  for (let i = 0; i < Object.keys(optionalInfo).length; i++) {
+    const key: string = Object.keys(optionalInfo)[i];
+    const value: string = optionalInfo[key];
+    const urlOption: string = `&${key}=${value}`;
+    URL += urlOption;
+  }
+
+  try {
+    const result = await axios.get(URL);
     data = result.data;
 
     if (!data) return console.log("Something went wrong");
-    return data
-
+    // console.log(data);
+    return data;
   } catch (error) {
     console.log(error);
   }
 }
+
+// fetchStockData("SYMBOL_SEARCH", "",{keywords: "jpmorgan"})

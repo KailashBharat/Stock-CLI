@@ -1,6 +1,10 @@
 import puppeteer from "puppeteer";
 import util from "util";
 import fse from "fs-extra";
+import ora from "ora-classic";
+import inquirer from "inquirer";
+
+import options from "../options";
 
 interface filterOption {
   name: string;
@@ -14,9 +18,15 @@ interface filterIDAndOption {
 }
 
 export async function setFinvizFilterOptions() {
+  const spinner = ora("Loading...");
   try {
-    const browser = await puppeteer.launch({ headless: false });
+    spinner.start();
+    const browser = await puppeteer.launch({ headless: true });
     const page = (await browser.pages())[0];
+
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
+    );
 
     await page.goto("https://finviz.com/screener.ashx?v=111&ft=4", {
       waitUntil: "networkidle2",
@@ -32,7 +42,6 @@ export async function setFinvizFilterOptions() {
         "No children";
       const tableRows: Element[] = Object.values(tableChildren);
       const screeningOptions: filterOption[] = [];
-
       tableRows.forEach((row) => {
         const rowChildren: HTMLCollection = row.children;
         const rowData: Element[] = Object.values(rowChildren) || [];
@@ -52,7 +61,6 @@ export async function setFinvizFilterOptions() {
 
           if (filterName?.innerHTML) {
             name = filterName.innerHTML;
-            console.log("hasFilterName", filterName.innerHTML);
           }
 
           if (filterOptions?.children) {
@@ -74,29 +82,32 @@ export async function setFinvizFilterOptions() {
           }
         });
       });
-
       return screeningOptions;
     });
 
-    await fse.unlink("src/keys.ts");
-    const writer = fse.createWriteStream("src/keys.ts");
-    writer.write(`const keys = ${JSON.stringify(options, null, 2)};\n`);
-    writer.write(`export default keys;`);
+    await fse.unlink("src/options.ts");
+    const writer = fse.createWriteStream("src/options.ts");
+    writer.write(`const options = ${JSON.stringify(options, null, 2)};\n`);
+    writer.write(`export default options;`);
 
-    await page.select("#fs_exch", "nasd");
-    await page.waitForTimeout(5_000_000);
     await browser.close();
-
-    // console.log(util.inspect(options, false, null, true));
+    spinner.succeed("Done");
   } catch (error) {
+    spinner.fail("Something went wrong");
     console.log(error);
   }
 }
 
 export async function getScreenedStock(filterOptions: filterIDAndOption[]) {
+  const spinner: ora.Ora = ora("Loading...");
   try {
-    const browser = await puppeteer.launch({ headless: false });
+    spinner.start();
+    const browser = await puppeteer.launch({ headless: true });
     const page = (await browser.pages())[0];
+
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
+    );
 
     await page.goto("https://finviz.com/screener.ashx?v=111&ft=4", {
       waitUntil: "networkidle2",
@@ -130,10 +141,59 @@ export async function getScreenedStock(filterOptions: filterIDAndOption[]) {
       }
     );
 
-    console.log(tickers);
-
-    await page.waitForTimeout(5_000_000);
     await browser.close();
+    spinner.succeed("Done");
+    console.log(tickers);
+  } catch (error) {
+    spinner.fail("Something went wrong");
+    console.log(error);
+  }
+}
+
+export async function createFilters() {
+  try {
+    let userOptions: { isNotDone: boolean } = { isNotDone: true };
+
+
+    while (userOptions.isNotDone) {
+      const answers: { filterName: string; filter1: string } =
+      await inquirer.prompt([
+        {
+          type: "list",
+          message: "What filter would you like to apply?",
+          name: "filter1",
+          choices: () => {
+            return options.map((option) => {
+              return option.name;
+            });
+          },
+        },
+      ]);
+
+      userOptions = await inquirer.prompt([
+        {
+          type: "list",
+          message: `What value would you like ${answers?.filter1} to have?`,
+          name: "filter1Value",
+          choices: () => {
+            let values: {
+              name: string;
+              id: string;
+              options: { OptionName: string; value: string }[];
+            } = options.filter((option) => option.name == answers.filter1)[0];
+
+            return values.options.map((val) => {
+              return val?.OptionName;
+            });
+          },
+        },
+        {
+          type: "confirm",
+          message: "Do you want to continue?",
+          name: "isNotDone",
+        },
+      ]);
+    }
   } catch (error) {
     console.log(error);
   }
@@ -148,6 +208,11 @@ const testArray: filterIDAndOption[] = [
     id: "fs_idx",
     option: "sp500",
   },
+  {
+    id: "fs_cap",
+    option: "mega",
+  },
 ];
 
-getScreenedStock(testArray);
+createFilters();
+// getScreenedStock(testArray);

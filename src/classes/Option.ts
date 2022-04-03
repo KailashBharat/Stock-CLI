@@ -8,7 +8,8 @@ export default class Option {
   }
 
   public searchOption(searchString: string): boolean {
-    const match = this.option.toLowerCase().search(searchString);
+    if (!this.option) return false;
+    const match = this?.option.toLowerCase().search(searchString);
     if (match === -1) {
       return false;
     }

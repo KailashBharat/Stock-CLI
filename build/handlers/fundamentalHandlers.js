@@ -1,128 +1,67 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.priceHandler = exports.IS_Handler = void 0;
-var stocks_1 = require("../api/stocks");
-var IncomeStatement_1 = __importDefault(require("../classes/IncomeStatement"));
-var price_1 = __importDefault(require("../classes/price"));
-function IS_Handler(stock, options) {
-    return __awaiter(this, void 0, void 0, function () {
-        var option, output, quarterlyReports, annualReports, error_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    if (Object.keys(options).length > 1)
-                        return [2 /*return*/, console.log("Please specify only one option")];
-                    option = new IncomeStatement_1.default(options);
-                    output = [];
-                    //FIXME: Make a method that logs the user's option
-                    console.log("You chose ".concat(stock.toUpperCase()));
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 6, , 7]);
-                    if (!option.searchOption("quarter")) return [3 /*break*/, 3];
-                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "INCOME_STATEMENT")];
-                case 2:
-                    quarterlyReports = (_a.sent()).quarterlyReports;
-                    option.setData(quarterlyReports);
-                    return [3 /*break*/, 5];
-                case 3:
-                    if (!option.searchOption("year")) return [3 /*break*/, 5];
-                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, "INCOME_STATEMENT")];
-                case 4:
-                    annualReports = (_a.sent()).annualReports;
-                    option.setData(annualReports);
-                    _a.label = 5;
-                case 5:
-                    output = option.getUserData();
-                    output.length
-                        ? console.log(output)
-                        : console.log("No data found, please try something else");
-                    return [3 /*break*/, 7];
-                case 6:
-                    error_1 = _a.sent();
-                    console.log(error_1);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
-            }
-        });
-    });
+exports.priceHandler = exports.fundamentalHandler = void 0;
+const stocks_1 = require("../api/stocks");
+const FundamentalData_1 = __importDefault(require("../classes/FundamentalData"));
+const price_1 = __importDefault(require("../classes/price"));
+async function fundamentalHandler(fundamentalFunction, stock, options = {}) {
+    if (Object.keys(options).length > 1)
+        return console.log("Please specify only one option");
+    const option = new FundamentalData_1.default(options);
+    let output = [];
+    //FIXME: Make a method that logs the user's option
+    if (stock)
+        console.log(`You chose ${stock.toUpperCase()}`);
+    try {
+        if (option.searchOption("quarter")) {
+            const { quarterlyReports } = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
+            option?.setData(quarterlyReports);
+            output = option.getUserData();
+        }
+        else if (option.searchOption("year")) {
+            const { annualReports } = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
+            option.setData(annualReports);
+            output = option.getUserData();
+        }
+        else {
+            output.push(await (0, stocks_1.fetchStockData)(fundamentalFunction, stock));
+        }
+        output.length
+            ? console.log(output)
+            : console.log("No data found, please try something else");
+    }
+    catch (error) {
+        console.log(error);
+    }
 }
-exports.IS_Handler = IS_Handler;
-function priceHandler(stock, options) {
-    return __awaiter(this, void 0, void 0, function () {
-        var option, result, period, userOption, error_2;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    if (Object.keys(options).length > 1 || Object.keys(options).length == 0)
-                        return [2 /*return*/, console.log("Please specify only one option")];
-                    option = new price_1.default(options);
-                    userOption = "TIME_SERIES_DAILY";
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    if (option.searchOption("daily")) {
-                        userOption = "TIME_SERIES_DAILY";
-                    }
-                    else if (option.searchOption("weekly")) {
-                        userOption = "TIME_SERIES_WEEKLY";
-                    }
-                    else if (option.searchOption("monthly")) {
-                        userOption = "TIME_SERIES_MONTHLY";
-                    }
-                    return [4 /*yield*/, (0, stocks_1.fetchStockData)(stock, userOption)];
-                case 2:
-                    result = _a.sent();
-                    period = Object.keys(result)[1];
-                    option.setData(result[period]);
-                    console.log(option.getUserData());
-                    return [3 /*break*/, 4];
-                case 3:
-                    error_2 = _a.sent();
-                    console.log(error_2);
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
-            }
-        });
-    });
+exports.fundamentalHandler = fundamentalHandler;
+async function priceHandler(stock, options) {
+    if (Object.keys(options).length > 1 || Object.keys(options).length == 0)
+        return console.log("Please specify only one option");
+    const option = new price_1.default(options);
+    let result;
+    let period;
+    let userOption = "TIME_SERIES_DAILY";
+    try {
+        if (option.searchOption("daily")) {
+            userOption = "TIME_SERIES_DAILY";
+        }
+        else if (option.searchOption("weekly")) {
+            userOption = "TIME_SERIES_WEEKLY";
+        }
+        else if (option.searchOption("monthly")) {
+            userOption = "TIME_SERIES_MONTHLY";
+        }
+        result = await (0, stocks_1.fetchStockData)(userOption, stock);
+        period = Object.keys(result)[1];
+        option.setData(result[period]);
+        console.log(option.getUserData());
+    }
+    catch (error) {
+        console.log(error);
+    }
 }
 exports.priceHandler = priceHandler;

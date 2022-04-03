@@ -1,30 +1,39 @@
 import { fetchStockData } from "../api/stocks";
-import IncomeStatement from "../classes/IncomeStatement";
+import FundamentalData from "../classes/FundamentalData";
 import StockPrice from "../classes/price";
 
-export async function IS_Handler(stock: string, options: Object) {
+export async function fundamentalHandler(
+  fundamentalFunction: string,
+  stock?: string,
+  options: Object = {}
+) {
   if (Object.keys(options).length > 1)
     return console.log("Please specify only one option");
 
-  const option = new IncomeStatement(options);
-  let output = [];
+  const option: FundamentalData = new FundamentalData(options);
+  let output: Object[] = [];
 
   //FIXME: Make a method that logs the user's option
-  console.log(`You chose ${stock.toUpperCase()}`);
+  if (stock) console.log(`You chose ${stock.toUpperCase()}`);
 
   try {
     if (option.searchOption("quarter")) {
       const { quarterlyReports } = await fetchStockData(
-        stock,
-        "INCOME_STATEMENT"
+        fundamentalFunction,
+        stock
       );
-      option.setData(quarterlyReports);
+      option?.setData(quarterlyReports);
+      output = option.getUserData();
     } else if (option.searchOption("year")) {
-      const { annualReports } = await fetchStockData(stock, "INCOME_STATEMENT");
+      const { annualReports } = await fetchStockData(
+        fundamentalFunction,
+        stock
+      );
       option.setData(annualReports);
+      output = option.getUserData();
+    } else {
+      output.push(await fetchStockData(fundamentalFunction, stock));
     }
-
-    output = option.getUserData();
 
     output.length
       ? console.log(output)
@@ -52,7 +61,7 @@ export async function priceHandler(stock: string, options: Object) {
       userOption = "TIME_SERIES_MONTHLY";
     }
 
-    result = await fetchStockData(stock, userOption);
+    result = await fetchStockData(userOption, stock);
     period = Object.keys(result)[1];
 
     option.setData(result[period]);
