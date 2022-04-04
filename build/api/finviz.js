@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFilters = exports.getScreenedStock = exports.setFinvizFilterOptions = void 0;
+exports.createFilters = exports.getScreenedStocks = exports.setFinvizFilterOptions = void 0;
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const ora_classic_1 = __importDefault(require("ora-classic"));
 const inquirer_1 = __importDefault(require("inquirer"));
-const options_1 = __importDefault(require("../options"));
+const finvizFilters_1 = __importDefault(require("../finvizFilters"));
 async function setFinvizFilterOptions() {
     const spinner = (0, ora_classic_1.default)("Loading...");
     try {
@@ -58,10 +58,10 @@ async function setFinvizFilterOptions() {
             });
             return screeningOptions;
         });
-        await fs_extra_1.default.unlink("src/options.ts");
-        const writer = fs_extra_1.default.createWriteStream("src/options.ts");
-        writer.write(`const options = ${JSON.stringify(options, null, 2)};\n`);
-        writer.write(`export default options;`);
+        await fs_extra_1.default.unlink("src/finvizFilters.ts");
+        const writer = fs_extra_1.default.createWriteStream("src/finvizFilters.ts");
+        writer.write(`const filters = ${JSON.stringify(options, null, 2)};\n\n`);
+        writer.write(`export default filters;`);
         await browser.close();
         spinner.succeed("Done");
     }
@@ -71,7 +71,7 @@ async function setFinvizFilterOptions() {
     }
 }
 exports.setFinvizFilterOptions = setFinvizFilterOptions;
-async function getScreenedStock(filterOptions) {
+async function getScreenedStocks(filterOptions) {
     const spinner = (0, ora_classic_1.default)("Loading...");
     try {
         spinner.start();
@@ -86,8 +86,10 @@ async function getScreenedStock(filterOptions) {
         await page.waitForSelector("button.Button__StyledButton-a1qza5-0.lcqSKB");
         await page.click("button.Button__StyledButton-a1qza5-0.lcqSKB");
         for (let i = 0; i < filterOptions.length; i++) {
+            if (typeof filterOptions[i]?.options !== "string")
+                return;
             await page.waitForSelector(`#${filterOptions[i].id}`);
-            await page.select(`#${filterOptions[i].id}`, filterOptions[i].option);
+            await page.select(`#${filterOptions[i].id}`, filterOptions[i]?.options.toString());
         }
         await page.waitForSelector("#screener-views-table table.table-light tr");
         const tickers = await page.$$eval("#screener-views-table table.table-light tr", (elements) => {
@@ -102,38 +104,53 @@ async function getScreenedStock(filterOptions) {
         });
         await browser.close();
         spinner.succeed("Done");
-        console.log(tickers);
+        return tickers;
     }
     catch (error) {
         spinner.fail("Something went wrong");
         console.log(error);
     }
 }
-exports.getScreenedStock = getScreenedStock;
+exports.getScreenedStocks = getScreenedStocks;
 async function createFilters() {
     try {
-        let userOptions = { isNotDone: true };
-        while (userOptions.isNotDone) {
-            const answers = await inquirer_1.default.prompt([
+        const userFilters = [];
+        let prompt1;
+        let filter;
+        let prompt2 = {
+            isNotDone: true,
+            value: "",
+        };
+        let filterValues = { name: "", id: "" };
+        filter = await inquirer_1.default.prompt([
+            {
+                message: "What would you like to name your filter?",
+                name: "name",
+            },
+        ]);
+        while (prompt2.isNotDone) {
+            prompt1 = await inquirer_1.default.prompt([
                 {
                     type: "list",
                     message: "What filter would you like to apply?",
-                    name: "filter1",
+                    name: "key",
                     choices: () => {
-                        return options_1.default.map((option) => {
+                        return finvizFilters_1.default.map((option) => {
                             return option.name;
                         });
                     },
                 },
             ]);
-            userOptions = await inquirer_1.default.prompt([
+            prompt2 = await inquirer_1.default.prompt([
                 {
                     type: "list",
-                    message: `What value would you like ${answers?.filter1} to have?`,
-                    name: "filter1Value",
+                    message: `What value would you like ${prompt1?.key} to have?`,
+                    name: "value",
                     choices: () => {
-                        let values = options_1.default.filter((option) => option.name == answers.filter1)[0];
-                        return values.options.map((val) => {
+                        filterValues = finvizFilters_1.default.filter((option) => option.name == prompt1.key)[0];
+                        if (!filterValues?.options)
+                            return;
+                        return filterValues.options.map((val) => {
                             return val?.OptionName;
                         });
                     },
@@ -144,26 +161,17 @@ async function createFilters() {
                     name: "isNotDone",
                 },
             ]);
+            userFilters.push({
+                name: prompt1.key,
+                options: prompt2.value,
+                id: filterValues.id,
+            });
         }
+        await fs_extra_1.default.ensureFile("./src/userFilters.ts");
+        await fs_extra_1.default.appendFile("src/userFilters.ts", `\n\nexport const ${filter.name} = ${JSON.stringify(userFilters, null, 2)}`);
     }
     catch (error) {
         console.log(error);
     }
 }
 exports.createFilters = createFilters;
-const testArray = [
-    {
-        id: "fs_exch",
-        option: "nasd",
-    },
-    {
-        id: "fs_idx",
-        option: "sp500",
-    },
-    {
-        id: "fs_cap",
-        option: "mega",
-    },
-];
-createFilters();
-// getScreenedStock(testArray);

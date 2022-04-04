@@ -31,7 +31,11 @@ async function fetchStockData(functionType, symbol, optionalInfo = {}) {
         data = result.data;
         if (!data)
             return console.log("Something went wrong");
-        // console.log(data);
+        if (data ==
+            "symbol,name,ipoDate,priceRangeLow,priceRangeHigh,currency,exchange" ||
+            data == "symbol,name,reportDate,fiscalDateEnding,estimate,currency")
+            data = "No data found!";
+        // console.log(typeof data);
         return data;
     }
     catch (error) {
@@ -39,4 +43,4 @@ async function fetchStockData(functionType, symbol, optionalInfo = {}) {
     }
 }
 exports.fetchStockData = fetchStockData;
-// fetchStockData("EARNINGS_CALENDAR", "ASML")
+// fetchStockData("EARNINGS_CALENDAR", "ZM");

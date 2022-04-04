@@ -3,6 +3,7 @@ import {
   fundamentalHandler,
   priceHandler,
 } from "./handlers/fundamentalHandlers";
+import { screenStocks } from "./handlers/finvizHandlers";
 
 const program = new Command();
 
@@ -98,7 +99,10 @@ program
 program
   .command("earnings_calendar")
   .description("Provides the Earnings Calendar of a desired stock")
-  .option("-s, --stock <stock>", "View the Earnings Calendar of a certain stock")
+  .option(
+    "-s, --stock <stock>",
+    "View the Earnings Calendar of a certain stock"
+  )
   .action((options: Object) => {
     fundamentalHandler("EARNINGS_CALENDAR", Object.values(options)[0]);
   });
@@ -115,7 +119,7 @@ program
   .description("Provides an overview of a desired stock")
   .argument("<stock>", "Stock to find view")
   .action((stock: string) => {
-    fundamentalHandler("OVERVIEW", stock );
+    fundamentalHandler("OVERVIEW", stock);
   });
 
 program
@@ -124,7 +128,6 @@ program
   .argument("<keyword>", "keyword to search for")
   .action((keyword: string) => {
     fundamentalHandler("SYMBOL_SEARCH", "", { keywords: keyword });
-
   });
 
 //STOCK PRICE
@@ -151,12 +154,14 @@ program
 program
   .command("screen")
   .description("Screen for stocks")
-  .option("-l, --long-term, Screening for longterm stocks")
-  .option("-s, --short-term, Screening for shortterm stocks")
-  .action((options: Object) => {
-    if (!Object.keys(options).length)
-      return console.log("Please specify an option.");
-    console.log(`You chose to screen for ${Object.keys(options)[0]} stocks`);
+  .argument("<filter>", "The filter you'd like to apply for screening stocks")
+  .option("-l, --list", "List all available filters")
+  .action((filter:string, options: Object) => {
+    screenStocks(filter, options)
   });
+
+
+
+  
 
 export default program;

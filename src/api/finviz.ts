@@ -5,9 +5,8 @@ import ora from "ora-classic";
 import inquirer from "inquirer";
 
 import options from "../finvizFilters";
-import * as userFilters from "../userFilters";
 
-interface filterOption {
+export interface filterOption {
   name: string;
   id: string;
   options: Object[] | string;
@@ -94,7 +93,7 @@ export async function setFinvizFilterOptions() {
   }
 }
 
-export async function getScreenedStock(filterOptions: filterOption[]) {
+export async function getScreenedStocks(filterOptions: filterOption[]) {
   const spinner: ora.Ora = ora("Loading...");
   try {
     spinner.start();
@@ -147,7 +146,7 @@ export async function getScreenedStock(filterOptions: filterOption[]) {
 
     await browser.close();
     spinner.succeed("Done");
-    console.log(tickers);
+    return tickers;
   } catch (error) {
     spinner.fail("Something went wrong");
     console.log(error);
@@ -233,4 +232,3 @@ export async function createFilters() {
     console.log(error);
   }
 }
-

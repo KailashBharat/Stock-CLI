@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
 const fundamentalHandlers_1 = require("./handlers/fundamentalHandlers");
+const finvizHandlers_1 = require("./handlers/finvizHandlers");
 const program = new commander_1.Command();
 program
     .name("Stock CLI")
@@ -60,7 +61,7 @@ program
 });
 program
     .command("ipo")
-    .description("Provides a list of IPOs expected in th next 3 months")
+    .description("Provides a list of IPOs expected in the next 3 months")
     .action(() => {
     (0, fundamentalHandlers_1.fundamentalHandler)("IPO_CALENDAR");
 });
@@ -92,11 +93,9 @@ program
 program
     .command("screen")
     .description("Screen for stocks")
-    .option("-l, --long-term, Screening for longterm stocks")
-    .option("-s, --short-term, Screening for shortterm stocks")
-    .action((options) => {
-    if (!Object.keys(options).length)
-        return console.log("Please specify an option.");
-    console.log(`You chose to screen for ${Object.keys(options)[0]} stocks`);
+    .argument("<filter>", "The filter you'd like to apply for screening stocks")
+    .option("-l, --list", "List all available filters")
+    .action((filter, options) => {
+    (0, finvizHandlers_1.screenStocks)(filter, options);
 });
 exports.default = program;
