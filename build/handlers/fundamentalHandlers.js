@@ -11,23 +11,26 @@ async function fundamentalHandler(fundamentalFunction, stock, options = {}) {
     if (Object.keys(options).length > 1)
         return console.log("Please specify only one option");
     const option = new FundamentalData_1.default(options);
-    let output = [];
+    let output = [] || "";
+    let returnType;
     //FIXME: Make a method that logs the user's option
     if (stock)
         console.log(`You chose ${stock.toUpperCase()}`);
     try {
         if (option.searchOption("quarter")) {
-            const { quarterlyReports } = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
-            option?.setData(quarterlyReports);
+            const { quarterlyReports, quarterlyEarnings } = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
+            returnType = quarterlyReports || quarterlyEarnings;
+            option.setData(returnType);
             output = option.getUserData();
         }
         else if (option.searchOption("year")) {
-            const { annualReports } = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
-            option.setData(annualReports);
+            const { annualReports, annualEarnings } = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
+            returnType = annualReports || annualEarnings;
+            option.setData(returnType);
             output = option.getUserData();
         }
         else {
-            output.push(await (0, stocks_1.fetchStockData)(fundamentalFunction, stock));
+            output = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
         }
         output.length
             ? console.log(output)

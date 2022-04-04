@@ -11,28 +11,31 @@ export async function fundamentalHandler(
     return console.log("Please specify only one option");
 
   const option: FundamentalData = new FundamentalData(options);
-  let output: Object[] = [];
+  let output: Object[] | string = [] || "";
+  let returnType;
 
   //FIXME: Make a method that logs the user's option
   if (stock) console.log(`You chose ${stock.toUpperCase()}`);
 
   try {
     if (option.searchOption("quarter")) {
-      const { quarterlyReports } = await fetchStockData(
+      const { quarterlyReports, quarterlyEarnings } = await fetchStockData(
         fundamentalFunction,
         stock
       );
-      option?.setData(quarterlyReports);
+      returnType = quarterlyReports || quarterlyEarnings;
+      option.setData(returnType);
       output = option.getUserData();
     } else if (option.searchOption("year")) {
-      const { annualReports } = await fetchStockData(
+      const { annualReports, annualEarnings } = await fetchStockData(
         fundamentalFunction,
         stock
       );
-      option.setData(annualReports);
+      returnType = annualReports || annualEarnings;
+      option.setData(returnType);
       output = option.getUserData();
     } else {
-      output.push(await fetchStockData(fundamentalFunction, stock));
+      output= await fetchStockData(fundamentalFunction, stock);
     }
 
     output.length

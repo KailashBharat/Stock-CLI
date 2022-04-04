@@ -6,7 +6,6 @@ export async function fetchStockData(
   symbol?: string,
   optionalInfo: { [key: string]: string } = {}
 ) {
-
   let data;
   let URL: string = `https://www.alphavantage.co/query?function=${functionType}&apikey=${process.env.ALPHA_API_KEY}`;
   const FUNCTIONTYPES: string[] = [
@@ -34,11 +33,18 @@ export async function fetchStockData(
     data = result.data;
 
     if (!data) return console.log("Something went wrong");
-    // console.log(data);
+
+    if (
+      data ==
+        "symbol,name,ipoDate,priceRangeLow,priceRangeHigh,currency,exchange" ||
+      data == "symbol,name,reportDate,fiscalDateEnding,estimate,currency"
+    )
+      data = "No data found!";
+    // console.log(typeof data);
     return data;
   } catch (error) {
     console.log(error);
   }
 }
 
-// fetchStockData("SYMBOL_SEARCH", "",{keywords: "jpmorgan"})
+// fetchStockData("EARNINGS_CALENDAR", "ZM");

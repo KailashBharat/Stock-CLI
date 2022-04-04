@@ -39,4 +39,4 @@ async function fetchStockData(functionType, symbol, optionalInfo = {}) {
     }
 }
 exports.fetchStockData = fetchStockData;
-// fetchStockData("SYMBOL_SEARCH", "",{keywords: "jpmorgan"})
+// fetchStockData("EARNINGS_CALENDAR", "ASML")

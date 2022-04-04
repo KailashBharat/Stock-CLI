@@ -98,14 +98,14 @@ program
 program
   .command("earnings_calendar")
   .description("Provides the Earnings Calendar of a desired stock")
-  .argument("<stock>", "Stock to find the Earnings Calendar")
-  .action((stock: string) => {
-    fundamentalHandler("EARNINGS_CALENDAR", stock);
+  .option("-s, --stock <stock>", "View the Earnings Calendar of a certain stock")
+  .action((options: Object) => {
+    fundamentalHandler("EARNINGS_CALENDAR", Object.values(options)[0]);
   });
 
 program
   .command("ipo")
-  .description("Provides a list of IPOs expected in th next 3 months")
+  .description("Provides a list of IPOs expected in the next 3 months")
   .action(() => {
     fundamentalHandler("IPO_CALENDAR");
   });
@@ -115,15 +115,16 @@ program
   .description("Provides an overview of a desired stock")
   .argument("<stock>", "Stock to find view")
   .action((stock: string) => {
-    fundamentalHandler(stock, "OVERVIEW");
+    fundamentalHandler("OVERVIEW", stock );
   });
 
 program
   .command("search")
   .description("Searches for a certain stock")
-  .argument("<stock>", "keyword to search for")
-  .action((keyword: string, options: Object) => {
-    fundamentalHandler("SYMBOL_SEARCH", keyword, options);
+  .argument("<keyword>", "keyword to search for")
+  .action((keyword: string) => {
+    fundamentalHandler("SYMBOL_SEARCH", "", { keywords: keyword });
+
   });
 
 //STOCK PRICE

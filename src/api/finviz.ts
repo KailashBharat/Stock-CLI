@@ -4,17 +4,13 @@ import fse from "fs-extra";
 import ora from "ora-classic";
 import inquirer from "inquirer";
 
-import options from "../options";
+import options from "../finvizFilters";
+import * as userFilters from "../userFilters";
 
 interface filterOption {
   name: string;
   id: string;
-  options: Object[];
-}
-
-interface filterIDAndOption {
-  id: string;
-  option: string;
+  options: Object[] | string;
 }
 
 export async function setFinvizFilterOptions() {
@@ -85,10 +81,10 @@ export async function setFinvizFilterOptions() {
       return screeningOptions;
     });
 
-    await fse.unlink("src/options.ts");
-    const writer = fse.createWriteStream("src/options.ts");
-    writer.write(`const options = ${JSON.stringify(options, null, 2)};\n`);
-    writer.write(`export default options;`);
+    await fse.unlink("src/finvizFilters.ts");
+    const writer = fse.createWriteStream("src/finvizFilters.ts");
+    writer.write(`const filters = ${JSON.stringify(options, null, 2)};\n\n`);
+    writer.write(`export default filters;`);
 
     await browser.close();
     spinner.succeed("Done");
@@ -98,7 +94,7 @@ export async function setFinvizFilterOptions() {
   }
 }
 
-export async function getScreenedStock(filterOptions: filterIDAndOption[]) {
+export async function getScreenedStock(filterOptions: filterOption[]) {
   const spinner: ora.Ora = ora("Loading...");
   try {
     spinner.start();
@@ -119,22 +115,30 @@ export async function getScreenedStock(filterOptions: filterIDAndOption[]) {
     await page.click("button.Button__StyledButton-a1qza5-0.lcqSKB");
 
     for (let i = 0; i < filterOptions.length; i++) {
+      if (typeof filterOptions[i]?.options !== "string") return;
       await page.waitForSelector(`#${filterOptions[i].id}`);
-      await page.select(`#${filterOptions[i].id}`, filterOptions[i].option);
+      await page.select(
+        `#${filterOptions[i].id}`,
+        filterOptions[i]?.options.toString()
+      );
     }
 
     await page.waitForSelector("#screener-views-table table.table-light tr");
+
     const tickers: string[] = await page.$$eval(
       "#screener-views-table table.table-light tr",
       (elements: Element[]) => {
         const tickersSymbols: string[] = [];
+
         for (let i = 1; i < elements.length; i++) {
           const elementChildren: Element[] = Object.values(
             elements[i].children
           );
+
           const ticker: string =
             Object.values(elementChildren[1].children)[0].innerHTML ||
             "no ticker";
+
           tickersSymbols.push(ticker);
         }
         return tickersSymbols;
@@ -152,16 +156,33 @@ export async function getScreenedStock(filterOptions: filterIDAndOption[]) {
 
 export async function createFilters() {
   try {
-    let userOptions: { isNotDone: boolean } = { isNotDone: true };
+    const userFilters: Object[] = [];
 
+    let prompt1: { key: string };
+    let filter: { name: string };
+    let prompt2: { isNotDone: boolean; value: string } = {
+      isNotDone: true,
+      value: "",
+    };
+    let filterValues: {
+      name: string;
+      id: string;
+      options?: { OptionName: string; value: string }[];
+    } = { name: "", id: "" };
 
-    while (userOptions.isNotDone) {
-      const answers: { filterName: string; filter1: string } =
-      await inquirer.prompt([
+    filter = await inquirer.prompt([
+      {
+        message: "What would you like to name your filter?",
+        name: "name",
+      },
+    ]);
+
+    while (prompt2.isNotDone) {
+      prompt1 = await inquirer.prompt([
         {
           type: "list",
           message: "What filter would you like to apply?",
-          name: "filter1",
+          name: "key",
           choices: () => {
             return options.map((option) => {
               return option.name;
@@ -170,19 +191,17 @@ export async function createFilters() {
         },
       ]);
 
-      userOptions = await inquirer.prompt([
+      prompt2 = await inquirer.prompt([
         {
           type: "list",
-          message: `What value would you like ${answers?.filter1} to have?`,
-          name: "filter1Value",
+          message: `What value would you like ${prompt1?.key} to have?`,
+          name: "value",
           choices: () => {
-            let values: {
-              name: string;
-              id: string;
-              options: { OptionName: string; value: string }[];
-            } = options.filter((option) => option.name == answers.filter1)[0];
-
-            return values.options.map((val) => {
+            filterValues = options.filter(
+              (option) => option.name == prompt1.key
+            )[0];
+            if (!filterValues?.options) return;
+            return filterValues.options.map((val) => {
               return val?.OptionName;
             });
           },
@@ -193,26 +212,25 @@ export async function createFilters() {
           name: "isNotDone",
         },
       ]);
+
+      userFilters.push({
+        name: prompt1.key,
+        options: prompt2.value,
+        id: filterValues.id,
+      });
     }
+
+    await fse.ensureFile("./src/userFilters.ts");
+    await fse.appendFile(
+      "src/userFilters.ts",
+      `\n\nexport const ${filter.name} = ${JSON.stringify(
+        userFilters,
+        null,
+        2
+      )}`
+    );
   } catch (error) {
     console.log(error);
   }
 }
 
-const testArray: filterIDAndOption[] = [
-  {
-    id: "fs_exch",
-    option: "nasd",
-  },
-  {
-    id: "fs_idx",
-    option: "sp500",
-  },
-  {
-    id: "fs_cap",
-    option: "mega",
-  },
-];
-
-createFilters();
-// getScreenedStock(testArray);

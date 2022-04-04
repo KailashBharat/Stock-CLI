@@ -2,9 +2,7 @@ import Option from "./Option";
 
 interface Report {
   fiscalDateEnding: string;
-  reportedCurrency: string;
-  grossProfit: string;
-  netIncome: string;
+  [key: string]: string;
 }
 
 export default class FundamentalData extends Option {

@@ -54,9 +54,9 @@ program
 program
     .command("earnings_calendar")
     .description("Provides the Earnings Calendar of a desired stock")
-    .argument("<stock>", "Stock to find the Earnings Calendar")
-    .action((stock) => {
-    (0, fundamentalHandlers_1.fundamentalHandler)("EARNINGS_CALENDAR", stock);
+    .option("-s, --stock <stock>", "View the Earnings Calendar of a certain stock")
+    .action((options) => {
+    (0, fundamentalHandlers_1.fundamentalHandler)("EARNINGS_CALENDAR", Object.values(options)[0]);
 });
 program
     .command("ipo")
@@ -69,14 +69,14 @@ program
     .description("Provides an overview of a desired stock")
     .argument("<stock>", "Stock to find view")
     .action((stock) => {
-    (0, fundamentalHandlers_1.fundamentalHandler)(stock, "OVERVIEW");
+    (0, fundamentalHandlers_1.fundamentalHandler)("OVERVIEW", stock);
 });
 program
     .command("search")
     .description("Searches for a certain stock")
-    .argument("<stock>", "keyword to search for")
-    .action((keyword, options) => {
-    (0, fundamentalHandlers_1.fundamentalHandler)(keyword, "SYMBOL_SEARCH", options);
+    .argument("<keyword>", "keyword to search for")
+    .action((keyword) => {
+    (0, fundamentalHandlers_1.fundamentalHandler)("SYMBOL_SEARCH", "", { keywords: keyword });
 });
 //STOCK PRICE
 program
