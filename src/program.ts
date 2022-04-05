@@ -3,7 +3,7 @@ import {
   fundamentalHandler,
   priceHandler,
 } from "./handlers/fundamentalHandlers";
-import { screenStocks } from "./handlers/finvizHandlers";
+import { screenStocks, createFilters } from "./handlers/finvizHandlers";
 
 const program = new Command();
 
@@ -152,16 +152,20 @@ program
   });
 
 program
+  .command("create-filter")
+  .description("Create a filter for stocks")
+  .action(() => {
+    createFilters();
+  });
+
+program
   .command("screen")
   .description("Screen for stocks")
   .argument("<filter>", "The filter you'd like to apply for screening stocks")
   .option("-l, --list", "List all available filters")
-  .action((filter:string, options: Object) => {
-    screenStocks(filter, options)
+  .option("-s, --sort <filter>", "The filter you'd like to sort by.")
+  .action((filter: string, options: Object) => {
+    screenStocks(filter, options);
   });
-
-
-
-  
 
 export default program;

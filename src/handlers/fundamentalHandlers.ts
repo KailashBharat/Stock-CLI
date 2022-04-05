@@ -11,7 +11,7 @@ export async function fundamentalHandler(
     return console.log("Please specify only one option");
 
   const option: FundamentalData = new FundamentalData(options);
-  let output: Object[] | string = [] || "";
+  let output: object[] = [];
   let returnType;
 
   //FIXME: Make a method that logs the user's option
@@ -35,7 +35,8 @@ export async function fundamentalHandler(
       option.setData(returnType);
       output = option.getUserData();
     } else {
-      output= await fetchStockData(fundamentalFunction, stock);
+      output = await fetchStockData(fundamentalFunction, stock);
+      return console.log(output);
     }
 
     output.length

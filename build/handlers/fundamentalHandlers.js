@@ -11,7 +11,7 @@ async function fundamentalHandler(fundamentalFunction, stock, options = {}) {
     if (Object.keys(options).length > 1)
         return console.log("Please specify only one option");
     const option = new FundamentalData_1.default(options);
-    let output = [] || "";
+    let output = [];
     let returnType;
     //FIXME: Make a method that logs the user's option
     if (stock)
@@ -31,6 +31,7 @@ async function fundamentalHandler(fundamentalFunction, stock, options = {}) {
         }
         else {
             output = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
+            return console.log(output);
         }
         output.length
             ? console.log(output)

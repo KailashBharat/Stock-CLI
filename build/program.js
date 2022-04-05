@@ -91,10 +91,17 @@ program
     (0, fundamentalHandlers_1.priceHandler)(stock, options);
 });
 program
+    .command("create-filter")
+    .description("Create a filter for stocks")
+    .action(() => {
+    (0, finvizHandlers_1.createFilters)();
+});
+program
     .command("screen")
     .description("Screen for stocks")
     .argument("<filter>", "The filter you'd like to apply for screening stocks")
     .option("-l, --list", "List all available filters")
+    .option("-s, --sort <filter>", "The filter you'd like to sort by.")
     .action((filter, options) => {
     (0, finvizHandlers_1.screenStocks)(filter, options);
 });

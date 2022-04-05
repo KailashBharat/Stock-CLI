@@ -2,9 +2,7 @@ import puppeteer from "puppeteer";
 import util from "util";
 import fse from "fs-extra";
 import ora from "ora-classic";
-import inquirer from "inquirer";
-
-import options from "../finvizFilters";
+import * as all from "../userFilters";
 
 export interface filterOption {
   name: string;
@@ -93,7 +91,7 @@ export async function setFinvizFilterOptions() {
   }
 }
 
-export async function getScreenedStocks(filterOptions: filterOption[]) {
+export async function getScreenedStocks(filterOptions: all.userFilter[]) {
   const spinner: ora.Ora = ora("Loading...");
   try {
     spinner.start();
@@ -108,18 +106,14 @@ export async function getScreenedStocks(filterOptions: filterOption[]) {
       waitUntil: "networkidle2",
     });
 
-    await page.waitForSelector("button.Button__StyledButton-a1qza5-0.lcqSKB");
-    await page.click("button.Button__StyledButton-a1qza5-0.lcqSKB");
-    await page.waitForSelector("button.Button__StyledButton-a1qza5-0.lcqSKB");
-    await page.click("button.Button__StyledButton-a1qza5-0.lcqSKB");
+    await page.waitForSelector("button.Button__StyledButton-a1qza5-0");
+    await page.click("button.Button__StyledButton-a1qza5-0");
+    await page.waitForSelector("button.Button__StyledButton-a1qza5-0");
+    await page.click("button.Button__StyledButton-a1qza5-0");
 
     for (let i = 0; i < filterOptions.length; i++) {
-      if (typeof filterOptions[i]?.options !== "string") return;
       await page.waitForSelector(`#${filterOptions[i].id}`);
-      await page.select(
-        `#${filterOptions[i].id}`,
-        filterOptions[i]?.options.toString()
-      );
+      await page.select(`#${filterOptions[i].id}`, filterOptions[i].value);
     }
 
     await page.waitForSelector("#screener-views-table table.table-light tr");
@@ -143,92 +137,12 @@ export async function getScreenedStocks(filterOptions: filterOption[]) {
         return tickersSymbols;
       }
     );
-
+    // await page.waitForTimeout(5_000_000);
     await browser.close();
     spinner.succeed("Done");
     return tickers;
   } catch (error) {
     spinner.fail("Something went wrong");
-    console.log(error);
-  }
-}
-
-export async function createFilters() {
-  try {
-    const userFilters: Object[] = [];
-
-    let prompt1: { key: string };
-    let filter: { name: string };
-    let prompt2: { isNotDone: boolean; value: string } = {
-      isNotDone: true,
-      value: "",
-    };
-    let filterValues: {
-      name: string;
-      id: string;
-      options?: { OptionName: string; value: string }[];
-    } = { name: "", id: "" };
-
-    filter = await inquirer.prompt([
-      {
-        message: "What would you like to name your filter?",
-        name: "name",
-      },
-    ]);
-
-    while (prompt2.isNotDone) {
-      prompt1 = await inquirer.prompt([
-        {
-          type: "list",
-          message: "What filter would you like to apply?",
-          name: "key",
-          choices: () => {
-            return options.map((option) => {
-              return option.name;
-            });
-          },
-        },
-      ]);
-
-      prompt2 = await inquirer.prompt([
-        {
-          type: "list",
-          message: `What value would you like ${prompt1?.key} to have?`,
-          name: "value",
-          choices: () => {
-            filterValues = options.filter(
-              (option) => option.name == prompt1.key
-            )[0];
-            if (!filterValues?.options) return;
-            return filterValues.options.map((val) => {
-              return val?.OptionName;
-            });
-          },
-        },
-        {
-          type: "confirm",
-          message: "Do you want to continue?",
-          name: "isNotDone",
-        },
-      ]);
-
-      userFilters.push({
-        name: prompt1.key,
-        options: prompt2.value,
-        id: filterValues.id,
-      });
-    }
-
-    await fse.ensureFile("./src/userFilters.ts");
-    await fse.appendFile(
-      "src/userFilters.ts",
-      `\n\nexport const ${filter.name} = ${JSON.stringify(
-        userFilters,
-        null,
-        2
-      )}`
-    );
-  } catch (error) {
     console.log(error);
   }
 }

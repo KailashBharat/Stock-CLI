@@ -3,12 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFilters = exports.getScreenedStocks = exports.setFinvizFilterOptions = void 0;
+exports.getScreenedStocks = exports.setFinvizFilterOptions = void 0;
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const ora_classic_1 = __importDefault(require("ora-classic"));
-const inquirer_1 = __importDefault(require("inquirer"));
-const finvizFilters_1 = __importDefault(require("../finvizFilters"));
 async function setFinvizFilterOptions() {
     const spinner = (0, ora_classic_1.default)("Loading...");
     try {
@@ -75,21 +73,19 @@ async function getScreenedStocks(filterOptions) {
     const spinner = (0, ora_classic_1.default)("Loading...");
     try {
         spinner.start();
-        const browser = await puppeteer_1.default.launch({ headless: true });
+        const browser = await puppeteer_1.default.launch({ headless: false });
         const page = (await browser.pages())[0];
         await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
         await page.goto("https://finviz.com/screener.ashx?v=111&ft=4", {
             waitUntil: "networkidle2",
         });
-        await page.waitForSelector("button.Button__StyledButton-a1qza5-0.lcqSKB");
-        await page.click("button.Button__StyledButton-a1qza5-0.lcqSKB");
-        await page.waitForSelector("button.Button__StyledButton-a1qza5-0.lcqSKB");
-        await page.click("button.Button__StyledButton-a1qza5-0.lcqSKB");
+        await page.waitForSelector("button.Button__StyledButton-a1qza5-0");
+        await page.click("button.Button__StyledButton-a1qza5-0");
+        await page.waitForSelector("button.Button__StyledButton-a1qza5-0");
+        await page.click("button.Button__StyledButton-a1qza5-0");
         for (let i = 0; i < filterOptions.length; i++) {
-            if (typeof filterOptions[i]?.options !== "string")
-                return;
             await page.waitForSelector(`#${filterOptions[i].id}`);
-            await page.select(`#${filterOptions[i].id}`, filterOptions[i]?.options.toString());
+            await page.select(`#${filterOptions[i].id}`, filterOptions[i].value);
         }
         await page.waitForSelector("#screener-views-table table.table-light tr");
         const tickers = await page.$$eval("#screener-views-table table.table-light tr", (elements) => {
@@ -102,6 +98,7 @@ async function getScreenedStocks(filterOptions) {
             }
             return tickersSymbols;
         });
+        // await page.waitForTimeout(5_000_000);
         await browser.close();
         spinner.succeed("Done");
         return tickers;
@@ -112,66 +109,3 @@ async function getScreenedStocks(filterOptions) {
     }
 }
 exports.getScreenedStocks = getScreenedStocks;
-async function createFilters() {
-    try {
-        const userFilters = [];
-        let prompt1;
-        let filter;
-        let prompt2 = {
-            isNotDone: true,
-            value: "",
-        };
-        let filterValues = { name: "", id: "" };
-        filter = await inquirer_1.default.prompt([
-            {
-                message: "What would you like to name your filter?",
-                name: "name",
-            },
-        ]);
-        while (prompt2.isNotDone) {
-            prompt1 = await inquirer_1.default.prompt([
-                {
-                    type: "list",
-                    message: "What filter would you like to apply?",
-                    name: "key",
-                    choices: () => {
-                        return finvizFilters_1.default.map((option) => {
-                            return option.name;
-                        });
-                    },
-                },
-            ]);
-            prompt2 = await inquirer_1.default.prompt([
-                {
-                    type: "list",
-                    message: `What value would you like ${prompt1?.key} to have?`,
-                    name: "value",
-                    choices: () => {
-                        filterValues = finvizFilters_1.default.filter((option) => option.name == prompt1.key)[0];
-                        if (!filterValues?.options)
-                            return;
-                        return filterValues.options.map((val) => {
-                            return val?.OptionName;
-                        });
-                    },
-                },
-                {
-                    type: "confirm",
-                    message: "Do you want to continue?",
-                    name: "isNotDone",
-                },
-            ]);
-            userFilters.push({
-                name: prompt1.key,
-                options: prompt2.value,
-                id: filterValues.id,
-            });
-        }
-        await fs_extra_1.default.ensureFile("./src/userFilters.ts");
-        await fs_extra_1.default.appendFile("src/userFilters.ts", `\n\nexport const ${filter.name} = ${JSON.stringify(userFilters, null, 2)}`);
-    }
-    catch (error) {
-        console.log(error);
-    }
-}
-exports.createFilters = createFilters;
