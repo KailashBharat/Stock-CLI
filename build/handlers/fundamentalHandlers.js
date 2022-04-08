@@ -20,18 +20,27 @@ async function fundamentalHandler(fundamentalFunction, stock, options = {}) {
         if (option.searchOption("quarter")) {
             const { quarterlyReports, quarterlyEarnings } = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
             returnType = quarterlyReports || quarterlyEarnings;
+            if (!returnType) {
+                console.log("Invalid ticker, please try again!");
+                return;
+            }
             option.setData(returnType);
             output = option.getUserData();
         }
         else if (option.searchOption("year")) {
             const { annualReports, annualEarnings } = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
             returnType = annualReports || annualEarnings;
+            if (!returnType) {
+                console.log("Invalid ticker, please try again!");
+                return;
+            }
             option.setData(returnType);
             output = option.getUserData();
         }
         else {
-            output = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock);
-            return console.log(output);
+            output = await (0, stocks_1.fetchStockData)(fundamentalFunction, stock, options);
+            console.log(output);
+            return;
         }
         output.length
             ? console.log(output)
@@ -49,6 +58,7 @@ async function priceHandler(stock, options) {
     let result;
     let period;
     let userOption = "TIME_SERIES_DAILY";
+    let finalResult;
     try {
         if (option.searchOption("daily")) {
             userOption = "TIME_SERIES_DAILY";
@@ -60,9 +70,18 @@ async function priceHandler(stock, options) {
             userOption = "TIME_SERIES_MONTHLY";
         }
         result = await (0, stocks_1.fetchStockData)(userOption, stock);
+        if (!result) {
+            console.log("Invalid ticker, please try again!");
+            return;
+        }
         period = Object.keys(result)[1];
         option.setData(result[period]);
-        console.log(option.getUserData());
+        finalResult = option.getUserData();
+        if (!Object.keys(finalResult).length) {
+            console.log(`No data for ${stock}`);
+            return;
+        }
+        console.log(finalResult);
     }
     catch (error) {
         console.log(error);

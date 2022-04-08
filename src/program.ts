@@ -29,7 +29,7 @@ program
     "Provides the reports for the past <number> of years"
   )
   .option("-fy, --findYear <year>", "Provides the report for the desired year")
-  .action((stock: string, options: Object) => {
+  .action((stock: string, options) => {
     fundamentalHandler("INCOME_STATEMENT", stock, options);
   });
 
@@ -50,7 +50,7 @@ program
     "Provides the reports for the past <number> of years"
   )
   .option("-fy, --findYear <year>", "Provides the report for the desired year")
-  .action((stock: string, options: Object) => {
+  .action((stock: string, options) => {
     fundamentalHandler("BALANCE_SHEET", stock, options);
   });
 
@@ -71,7 +71,7 @@ program
     "Provides the reports for the past <number> of years"
   )
   .option("-fy, --findYear <year>", "Provides the report for the desired year")
-  .action((stock: string, options: Object) => {
+  .action((stock: string, options) => {
     fundamentalHandler("CASH_FLOW", stock, options);
   });
 
@@ -92,7 +92,7 @@ program
     "Provides the reports for the past <number> of years"
   )
   .option("-fy, --findYear <year>", "Provides the report for the desired year")
-  .action((stock: string, options: Object) => {
+  .action((stock: string, options) => {
     fundamentalHandler("EARNINGS", stock, options);
   });
 

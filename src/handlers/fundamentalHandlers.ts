@@ -5,7 +5,7 @@ import StockPrice from "../classes/price";
 export async function fundamentalHandler(
   fundamentalFunction: string,
   stock?: string,
-  options: Object = {}
+  options: { [key: string]: string } = {}
 ) {
   if (Object.keys(options).length > 1)
     return console.log("Please specify only one option");
@@ -24,6 +24,11 @@ export async function fundamentalHandler(
         stock
       );
       returnType = quarterlyReports || quarterlyEarnings;
+
+      if (!returnType) {
+        console.log("Invalid ticker, please try again!");
+        return;
+      }
       option.setData(returnType);
       output = option.getUserData();
     } else if (option.searchOption("year")) {
@@ -32,11 +37,17 @@ export async function fundamentalHandler(
         stock
       );
       returnType = annualReports || annualEarnings;
+
+      if (!returnType) {
+        console.log("Invalid ticker, please try again!");
+        return;
+      }
       option.setData(returnType);
       output = option.getUserData();
     } else {
-      output = await fetchStockData(fundamentalFunction, stock);
-      return console.log(output);
+      output = await fetchStockData(fundamentalFunction, stock, options);
+      console.log(output);
+      return;
     }
 
     output.length
@@ -55,6 +66,7 @@ export async function priceHandler(stock: string, options: Object) {
   let result: any;
   let period: string;
   let userOption: string = "TIME_SERIES_DAILY";
+  let finalResult: object;
 
   try {
     if (option.searchOption("daily")) {
@@ -66,10 +78,22 @@ export async function priceHandler(stock: string, options: Object) {
     }
 
     result = await fetchStockData(userOption, stock);
-    period = Object.keys(result)[1];
 
+    if (!result) {
+      console.log("Invalid ticker, please try again!");
+      return;
+    }
+
+    period = Object.keys(result)[1];
     option.setData(result[period]);
-    console.log(option.getUserData());
+    finalResult = option.getUserData();
+
+    if (!Object.keys(finalResult).length) {
+      console.log(`No data for ${stock}`);
+      return;
+    }
+
+    console.log(finalResult);
   } catch (error) {
     console.log(error);
   }

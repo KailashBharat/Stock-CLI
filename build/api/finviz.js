@@ -73,7 +73,7 @@ async function getScreenedStocks(filterOptions) {
     const spinner = (0, ora_classic_1.default)("Loading...");
     try {
         spinner.start();
-        const browser = await puppeteer_1.default.launch({ headless: false });
+        const browser = await puppeteer_1.default.launch({ headless: true });
         const page = (await browser.pages())[0];
         await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
         await page.goto("https://finviz.com/screener.ashx?v=111&ft=4", {
