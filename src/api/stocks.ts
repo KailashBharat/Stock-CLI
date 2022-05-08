@@ -48,4 +48,4 @@ export async function fetchStockData(
   }
 }
 
-// fetchStockData("TIME_SERIES_DAILY", "APPLE");
+fetchStockData("TIME_SERIES_DAILY", "APPLE");

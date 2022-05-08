@@ -44,4 +44,4 @@ async function fetchStockData(functionType, symbol, optionalInfo) {
     }
 }
 exports.fetchStockData = fetchStockData;
-// fetchStockData("TIME_SERIES_DAILY", "APPLE");
+fetchStockData("TIME_SERIES_DAILY", "APPLE");
